@@ -9,10 +9,10 @@ unsigned hash(void* string) {
   return i;
 }
 
-void leer_diccionario(TablaHash* tabla){
+void leer_diccionario(TablaHash* tabla) {
   FILE* archivo = fopen("diccionario.txt", "r");
-  char* palabra = malloc(sizeof(char)*256);
-  while(!feof(archivo)){
+  char* palabra = malloc(sizeof(char) * 256);
+  while (!feof(archivo)) {
     printf("Voy a ingresar algo\n");
     fscanf(archivo, "%s", palabra);
     printf("Lei algo\n");

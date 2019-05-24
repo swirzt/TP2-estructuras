@@ -29,7 +29,7 @@ void tablahash_insertar(TablaHash* tabla, void* string) {
   unsigned idx = tabla->hash(string);
   idx = idx % tabla->capacidad;
 
-  //insertamos el valor en el arbol correspondiente
+  // insertamos el valor en el arbol correspondiente
   tabla->tabla[idx].nodo = btree_insertar(tabla->tabla[idx].nodo, string);
 }
 
@@ -43,8 +43,7 @@ int tablahash_buscar(TablaHash* tabla, void* string) {
   idx = idx % tabla->capacidad;
 
   // Si el lugar esta vacío, retornamos un puntero nulo.
-  if (tabla->tabla[idx].nodo == NULL)
-    return 0;
+  if (tabla->tabla[idx].nodo == NULL) return 0;
 
   return btree_obtener_dato(tabla->tabla[idx].nodo, string);
 }
@@ -60,7 +59,7 @@ void tablahash_destruir(TablaHash* tabla) {
 /**
  * Comparar datos
  */
-int comparar_clave(void* clave1, void* clave2){
+int comparar_clave(void* clave1, void* clave2) {
   int* claveoriginal = clave1;
   int* claveocomparar = clave2;
   return *claveocomparar == *claveoriginal;
