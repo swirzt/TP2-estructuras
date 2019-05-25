@@ -12,3 +12,6 @@ tablashash/btree.h.gch
 tablashash/a.out
 tablashash/tablahash.h.gch
 tablashash/tablahash.o
+*.o
+tablashash/main
+*.bin

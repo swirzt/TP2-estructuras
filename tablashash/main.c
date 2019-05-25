@@ -1,13 +1,10 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "tablahash.h"
 
-unsigned potencia(int base, int exp) {
-  unsigned valor = 1;
-  for (int i = 0; i < exp; i++) valor = valor * base;
-  return valor;
-}
+#define SIZEHASH 1689
 
 void reemplazachar(char* palabra, int pos, int valorcambio) {
   char cambio;
@@ -65,8 +62,14 @@ void reemplazachar(char* palabra, int pos, int valorcambio) {
   pos++;
   int largo = strlen(palabra);
   for (; pos < largo; pos++) palabra[pos] = palabra[pos + 1];
-  printf("%s reemplaze\n", palabra);
 }
+
+void eliminarchar(char* palabra, int pos) {
+  int nuevolargo = strlen(palabra) - 1;
+  for (int i = pos; i < nuevolargo; i++) palabra[i] = palabra[i + 1];
+}
+
+int rangoascii(char c) { return ((c > 64 && c < 91) || (c > 96 && c < 123)); }
 
 void simplificador(char* palabra) {
   char base[33] = "áéíóúÁÉÍÓÚñÑöÖüÜ";
@@ -74,12 +77,13 @@ void simplificador(char* palabra) {
   char it = palabra[i];
   while (it != '\0') {
     if (it == base[0]) {
-      printf("hola\n");
       char its = palabra[i + 1];
       int valorcambio = 0;
       for (int j = 1; j < 32 && !valorcambio; j = j + 2)
         if (its == base[j]) valorcambio = j;
       reemplazachar(palabra, i, valorcambio);
+    } else if (!rangoascii(it)) {
+      eliminarchar(palabra, i);
     } else
       palabra[i] = tolower(palabra[i]);
     i++;
@@ -87,28 +91,38 @@ void simplificador(char* palabra) {
   }
 }
 
-unsigned hash(void* string) {
-  char* p = string;
-  int i = 0;
-  for (int j = 0; *p;) i = i + (*p++);
-  return i;
+unsigned potencia(int base, int exp) {
+  unsigned valor = 1;
+  for (int i = 0; i < exp; i++) valor = valor * base;
+  return valor;
 }
 
-void leer_diccionario(TablaHash* tabla) {
-  FILE* archivo = fopen("test.txt", "r");
+unsigned hash(void* string) {
+  char* palabra = string;
+  unsigned contador = 0;
+  int largo = strlen(palabra);
+  for (int i = 0; i < largo; i++)
+    contador += (palabra[i] * potencia(27, i)) % SIZEHASH;
+  return contador;
+}
+
+void leer_diccionario(TablaHash* tabla, char* nombrearchivo) {
+  FILE* archivo = fopen(nombrearchivo, "r");
   char* palabra = malloc(sizeof(char) * 256);
+  int i = 0;
   while (!feof(archivo)) {
-    printf("Voy a ingresar algo\n");
+    printf("%d\n", i++);
     fscanf(archivo, "%s", palabra);
-    printf("Lei algo\n");
+    simplificador(palabra);
+    printf("sali-%s %ld\n", palabra, strlen(palabra));
     tablahash_insertar(tabla, palabra);
-    printf("Inserte algo\n");
+    printf("guarde\n");
   }
 }
 
 int main() {
-  FILE* archivo = fopen("diccionario.txt", "r");
-  TablaHash* diccionario = tablahash_crear(1689, hash);
-  leer_diccionario(diccionario);
+  TablaHash* diccionario = tablahash_crear(SIZEHASH, hash);
+  leer_diccionario(diccionario, "diccionario.txt");
+  printf("%d\n", tablahash_buscar(diccionario, "phegopteris"));
   return 0;
 }
