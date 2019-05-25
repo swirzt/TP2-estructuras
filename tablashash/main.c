@@ -83,6 +83,7 @@ void simplificador(char* palabra) {
         if (its == base[j]) valorcambio = j;
       reemplazachar(palabra, i, valorcambio);
     } else if (!rangoascii(it)) {
+      printf("borrealgo jeje\n");
       eliminarchar(palabra, i);
     } else
       palabra[i] = tolower(palabra[i]);
@@ -109,20 +110,15 @@ unsigned hash(void* string) {
 void leer_diccionario(TablaHash* tabla, char* nombrearchivo) {
   FILE* archivo = fopen(nombrearchivo, "r");
   char* palabra = malloc(sizeof(char) * 256);
-  int i = 0;
   while (!feof(archivo)) {
-    printf("%d\n", i++);
     fscanf(archivo, "%s", palabra);
     simplificador(palabra);
-    printf("sali-%s %ld\n", palabra, strlen(palabra));
     tablahash_insertar(tabla, palabra);
-    printf("guarde\n");
   }
 }
 
 int main() {
   TablaHash* diccionario = tablahash_crear(SIZEHASH, hash);
   leer_diccionario(diccionario, "diccionario.txt");
-  printf("%d\n", tablahash_buscar(diccionario, "phegopteris"));
   return 0;
 }
