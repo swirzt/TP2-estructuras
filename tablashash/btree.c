@@ -1,6 +1,6 @@
+#include "btree.h"
 #include <stdlib.h>
 #include <string.h>
-#include "btree.h"
 
 BTree btree_crear() { return NULL; }
 
@@ -41,6 +41,7 @@ BTree btree_insertar(BTree arbol, void* string) {
   }
   BTree padre, origen = arbol;
   while (arbol != NULL) {
+    if (!(strcmp(arbol->dato, palabra))) return origen;
     padre = arbol;
     if (strcmp(arbol->dato, palabra) < 0)
       arbol = arbol->right;

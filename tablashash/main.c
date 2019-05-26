@@ -120,5 +120,6 @@ void leer_diccionario(TablaHash* tabla, char* nombrearchivo) {
 int main() {
   TablaHash* diccionario = tablahash_crear(SIZEHASH, hash);
   leer_diccionario(diccionario, "diccionario.txt");
+  printf("%d\n", tablahash_buscar(diccionario, "aberracion"));
   return 0;
 }
