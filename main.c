@@ -10,52 +10,32 @@ void reemplazachar(char* palabra, int pos, int valorcambio) {
   char cambio;
   switch (valorcambio) {
     case 1:
-      cambio = 'a';
-      break;
     case 3:
-      cambio = 'e';
+      cambio = 'a';
       break;
     case 5:
-      cambio = 'i';
-      break;
     case 7:
-      cambio = 'o';
-      break;
-    case 9:
-      cambio = 'u';
-      break;
-    case 11:
-      cambio = 'a';
-      break;
-    case 13:
       cambio = 'e';
       break;
-    case 15:
+    case 9:
+    case 11:
       cambio = 'i';
       break;
+    case 13:
+    case 15:
     case 17:
-      cambio = 'o';
-      break;
     case 19:
-      cambio = 'u';
+      cambio = 'o';
       break;
     case 21:
-      cambio = 'n';
-      break;
     case 23:
-      cambio = 'n';
-      break;
     case 25:
-      cambio = 'o';
-      break;
     case 27:
-      cambio = 'o';
+      cambio = 'u';
       break;
     case 29:
-      cambio = 'u';
-      break;
     case 31:
-      cambio = 'u';
+      cambio = 'n';
       break;
   }
   palabra[pos] = cambio;
@@ -72,18 +52,18 @@ void eliminarchar(char* palabra, int pos) {
 int rangoascii(char c) { return ((c > 64 && c < 91) || (c > 96 && c < 123)); }
 
 void simplificador(char* palabra) {
-  char base[33] = "áéíóúÁÉÍÓÚñÑöÖüÜ";
+  char base[33] = "áÁéÉíÍóÓöÖúÚüÜñÑ";
   int i = 0;
   char it = palabra[i];
   while (it != '\0') {
-    if (it == base[0]) {
+    if (it == base[0]) {  // Se ejecuta si el caracter representa la primer
+                          // parte de un caracter doble
       char its = palabra[i + 1];
       int valorcambio = 0;
       for (int j = 1; j < 32 && !valorcambio; j = j + 2)
         if (its == base[j]) valorcambio = j;
       reemplazachar(palabra, i, valorcambio);
     } else if (!rangoascii(it)) {
-      printf("borrealgo jeje\n");
       eliminarchar(palabra, i);
     } else
       palabra[i] = tolower(palabra[i]);
