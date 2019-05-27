@@ -1,105 +1,55 @@
 #include <ctype.h>
+#include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <wchar.h>
+#include "btree.h"
 #include "tablahash.h"
 
 #define SIZEHASH 1689
 
-void reemplazachar(char* palabra, int pos, int valorcambio) {
-  char cambio;
-  switch (valorcambio) {
-    case 1:
-    case 3:
-      cambio = 'a';
-      break;
-    case 5:
-    case 7:
-      cambio = 'e';
-      break;
-    case 9:
-    case 11:
-      cambio = 'i';
-      break;
-    case 13:
-    case 15:
-    case 17:
-    case 19:
-      cambio = 'o';
-      break;
-    case 21:
-    case 23:
-    case 25:
-    case 27:
-      cambio = 'u';
-      break;
-    case 29:
-    case 31:
-      cambio = 'n';
-      break;
-  }
-  palabra[pos] = cambio;
-  pos++;
-  int largo = strlen(palabra);
-  for (; pos < largo; pos++) palabra[pos] = palabra[pos + 1];
-}
-
-void eliminarchar(char* palabra, int pos) {
-  int nuevolargo = strlen(palabra) - 1;
-  for (int i = pos; i < nuevolargo; i++) palabra[i] = palabra[i + 1];
-}
-
-int rangoascii(char c) { return ((c > 64 && c < 91) || (c > 96 && c < 123)); }
-
-void simplificador(char* palabra) {
-  char base[33] = "áÁéÉíÍóÓöÖúÚüÜñÑ";
-  int i = 0;
-  char it = palabra[i];
-  while (it != '\0') {
-    if (it == base[0]) {  // Se ejecuta si el caracter representa la primer
-                          // parte de un caracter doble
-      char its = palabra[i + 1];
-      int valorcambio = 0;
-      for (int j = 1; j < 32 && !valorcambio; j = j + 2)
-        if (its == base[j]) valorcambio = j;
-      reemplazachar(palabra, i, valorcambio);
-    } else if (!rangoascii(it)) {
-      eliminarchar(palabra, i);
-    } else
-      palabra[i] = tolower(palabra[i]);
-    i++;
-    it = palabra[i];
-  }
-}
-
+/*
+ *Eleva la base a exp.
+ */
 unsigned potencia(int base, int exp) {
   unsigned valor = 1;
   for (int i = 0; i < exp; i++) valor = valor * base;
   return valor;
 }
 
+/*
+ *Sumo el valor ascii del caracter multiplicado por el largo del abecedario
+ *elevado a la posicion actual en la matriz y luego aplico modulo SIZEHASH.
+ */
 unsigned hash(void* string) {
-  char* palabra = string;
+  wchar_t* palabra = string;
   unsigned contador = 0;
-  int largo = strlen(palabra);
+  int largo = wcslen(palabra);
   for (int i = 0; i < largo; i++)
     contador += (palabra[i] * potencia(27, i)) % SIZEHASH;
   return contador;
 }
 
+/*
+ *-Recibe una tabla hash y el nombre del diccionario a leer.
+ *-Almacena todas las palabras del diccionario en el Hash.
+ */
 void leer_diccionario(TablaHash* tabla, char* nombrearchivo) {
   FILE* archivo = fopen(nombrearchivo, "r");
-  char* palabra = malloc(sizeof(char) * 256);
-  while (!feof(archivo)) {
-    fscanf(archivo, "%s", palabra);
-    simplificador(palabra);
+  wchar_t* palabra = malloc(sizeof(wchar_t) * 128);
+  // int i = 1;
+  while (fgetws(palabra, 128, archivo) != NULL) {
+    size_t largo = wcslen(palabra);
+    palabra[largo - 1] = L'\0';
     tablahash_insertar(tabla, palabra);
   }
 }
 
-int main() {
+int main(int argc, char* argv[]) {
+  setlocale(LC_ALL, "");
   TablaHash* diccionario = tablahash_crear(SIZEHASH, hash);
-  leer_diccionario(diccionario, "diccionario.txt");
-  printf("%d\n", tablahash_buscar(diccionario, "aberracion"));
+  leer_diccionario(diccionario, argv[1]);
+  // wchar_t busqueda[90] = L"péname\n";
+  // wprintf(L"%d\n", tablahash_buscar(diccionario, busqueda));
   return 0;
 }

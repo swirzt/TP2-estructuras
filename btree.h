@@ -1,10 +1,11 @@
 #ifndef __BTREE_H__
 #define __BTREE_H__
+#include <wchar.h>
 
 typedef struct _BTNodo {
-  char* dato;
-  struct _BTNodo *left;
-  struct _BTNodo *right;
+  wchar_t* dato;
+  struct _BTNodo* left;
+  struct _BTNodo* right;
 } BTNodo;
 
 typedef BTNodo* BTree;

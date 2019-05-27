@@ -1,6 +1,8 @@
 #include "tablahash.h"
 #include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <wchar.h>
 #include "btree.h"
 
 /**
@@ -28,6 +30,7 @@ void tablahash_insertar(TablaHash* tabla, void* string) {
   // Calculamos la posición de la clave dada, de acuerdo a la función hash.
   unsigned idx = tabla->hash(string);
   idx = idx % tabla->capacidad;
+  printf("valor hash %d\n", idx);
 
   // insertamos el valor en el arbol correspondiente
   tabla->tabla[idx].nodo = btree_insertar(tabla->tabla[idx].nodo, string);
@@ -52,7 +55,8 @@ int tablahash_buscar(TablaHash* tabla, void* string) {
  * Destruye la tabla.
  */
 void tablahash_destruir(TablaHash* tabla) {
-  free(tabla->tabla);
+  for (unsigned int i = 0; i < tabla->capacidad; i++)
+    btree_destruir(tabla->tabla->nodo + i);
   free(tabla);
 }
 

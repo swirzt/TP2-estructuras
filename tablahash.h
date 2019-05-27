@@ -19,7 +19,6 @@ typedef struct {
  */
 typedef struct {
   CasillaHash* tabla;
-  // unsigned numElems;
   unsigned capacidad;
   FuncionHash hash;
 } TablaHash;
@@ -52,6 +51,6 @@ void tablahash_destruir(TablaHash* tabla);
 /**
  * Comparar datos
  */
-int comparar_clave(void * clave1, void * clave2);
+int comparar_clave(void* clave1, void* clave2);
 
 #endif /* __TABLAHASH_H__ */
