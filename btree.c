@@ -1,18 +1,28 @@
 #include "btree.h"
+#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <wchar.h>
 
+/**
+ * Devuelve un arbol vacío.
+ */
 BTree btree_crear() { return NULL; }
 
+/**
+ * Destruccion del árbol.
+ */
 void btree_destruir(BTree nodo) {
   if (nodo != NULL) {
     btree_destruir(nodo->left);
     btree_destruir(nodo->right);
+    free(nodo->dato);
     free(nodo);
   }
 }
 
+/**
+ * Busca el dato en la lista, devuelve un Booleano.
+ */
 int btree_obtener_dato(BTree arbol, void* string) {
   wchar_t* palabra = string;
   int encontre = 0;
@@ -24,19 +34,18 @@ int btree_obtener_dato(BTree arbol, void* string) {
     else
       arbol = arbol->left;
   }
-  if (encontre)
-    return 1;
-  else
-    return 0;
+  return encontre;
 }
 
-BTree btree_insertar(BTree arbol, void* string) {
+/**
+ * Inserta un dato en el arbol.
+ */
+BTree btree_insertar(BTree arbol, void* string, size_t strlen) {
   wchar_t* palabra = string;
-  size_t largo = wcslen(palabra);
-  wprintf(L"%ld\n", largo);
+  // size_t strlen = wcslen(palabra) + 1;
   if (arbol == NULL) {
     BTree nuevoNodo = malloc(sizeof(BTNodo));
-    nuevoNodo->dato = malloc(sizeof(wchar_t) * (largo - 1));
+    nuevoNodo->dato = malloc(sizeof(wchar_t) * strlen);
     nuevoNodo->dato = wcscpy(nuevoNodo->dato, palabra);
     nuevoNodo->right = NULL;
     nuevoNodo->left = NULL;
@@ -52,7 +61,7 @@ BTree btree_insertar(BTree arbol, void* string) {
       arbol = arbol->left;
   }
   BTree nuevoNodo = malloc(sizeof(BTNodo));
-  nuevoNodo->dato = malloc(sizeof(wchar_t) * (largo - 1));
+  nuevoNodo->dato = malloc(sizeof(wchar_t) * strlen);
   nuevoNodo->dato = wcscpy(nuevoNodo->dato, palabra);
   nuevoNodo->right = NULL;
   nuevoNodo->left = NULL;

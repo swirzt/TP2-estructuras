@@ -26,23 +26,24 @@ TablaHash* tablahash_crear(unsigned capacidad, FuncionHash hash) {
 /**
  * Inserta el dato en la tabla, asociado a la clave dada.
  */
-void tablahash_insertar(TablaHash* tabla, void* string) {
+void tablahash_insertar(TablaHash* tabla, void* string, size_t strlen) {
   // Calculamos la posición de la clave dada, de acuerdo a la función hash.
-  unsigned idx = tabla->hash(string);
+  unsigned idx = tabla->hash(string, strlen);
   idx = idx % tabla->capacidad;
-  printf("valor hash %d\n", idx);
+  // printf("valor hash %d\n", idx);
 
   // insertamos el valor en el arbol correspondiente
-  tabla->tabla[idx].nodo = btree_insertar(tabla->tabla[idx].nodo, string);
+  tabla->tabla[idx].nodo =
+      btree_insertar(tabla->tabla[idx].nodo, string, strlen);
 }
 
 /**
  * Busca un elemento dado en la tabla, y retorna un puntero al mismo.
  * En caso de no existir, se retorna un puntero nulo.
  */
-int tablahash_buscar(TablaHash* tabla, void* string) {
+int tablahash_buscar(TablaHash* tabla, void* string, size_t strlen) {
   // Calculamos la posición de la clave dada, de acuerdo a la función hash.
-  unsigned idx = tabla->hash(string);
+  unsigned idx = tabla->hash(string, strlen);
   idx = idx % tabla->capacidad;
 
   // Si el lugar esta vacío, retornamos un puntero nulo.

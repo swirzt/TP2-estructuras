@@ -7,6 +7,7 @@
 #include "tablahash.h"
 
 #define SIZEHASH 1689
+#define SIZEBUFFER 128
 
 /*
  *Eleva la base a exp.
@@ -21,10 +22,10 @@ unsigned potencia(int base, int exp) {
  *Sumo el valor ascii del caracter multiplicado por el largo del abecedario
  *elevado a la posicion actual en la matriz y luego aplico modulo SIZEHASH.
  */
-unsigned hash(void* string) {
+unsigned hash(void* string, size_t strlen) {
   wchar_t* palabra = string;
   unsigned contador = 0;
-  int largo = wcslen(palabra);
+  int largo = strlen;
   for (int i = 0; i < largo; i++)
     contador += (palabra[i] * potencia(27, i)) % SIZEHASH;
   return contador;
@@ -36,12 +37,11 @@ unsigned hash(void* string) {
  */
 void leer_diccionario(TablaHash* tabla, char* nombrearchivo) {
   FILE* archivo = fopen(nombrearchivo, "r");
-  wchar_t* palabra = malloc(sizeof(wchar_t) * 128);
-  // int i = 1;
-  while (fgetws(palabra, 128, archivo) != NULL) {
+  wchar_t* palabra = malloc(sizeof(wchar_t) * SIZEBUFFER);
+  while (fgetws(palabra, SIZEBUFFER, archivo) != NULL) {
     size_t largo = wcslen(palabra);
-    palabra[largo - 1] = L'\0';
-    tablahash_insertar(tabla, palabra);
+    palabra[largo - 1] = palabra[largo];  // Quito el caracter '\n'
+    tablahash_insertar(tabla, palabra, largo);
   }
 }
 
@@ -49,7 +49,8 @@ int main(int argc, char* argv[]) {
   setlocale(LC_ALL, "");
   TablaHash* diccionario = tablahash_crear(SIZEHASH, hash);
   leer_diccionario(diccionario, argv[1]);
-  // wchar_t busqueda[90] = L"péname\n";
-  // wprintf(L"%d\n", tablahash_buscar(diccionario, busqueda));
+  tablahash_destruir(diccionario);
+  wchar_t busqueda[90] = L"péname";
+  wprintf(L"%d\n", tablahash_buscar(diccionario, busqueda, 6));
   return 0;
 }

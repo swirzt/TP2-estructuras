@@ -1,9 +1,9 @@
 #ifndef __BTREE_H__
 #define __BTREE_H__
-#include <wchar.h>
+#include <stdlib.h>
 
 typedef struct _BTNodo {
-  wchar_t* dato;
+  void* dato;
   struct _BTNodo* left;
   struct _BTNodo* right;
 } BTNodo;
@@ -28,6 +28,6 @@ int btree_obtener_dato(BTree arbol, void* string);
 /**
  * Inserta un dato en el arbol.
  */
-BTree btree_insertar(BTree arbol, void* string);
+BTree btree_insertar(BTree arbol, void* string, size_t strlen);
 
 #endif /* __BTREE_H__ */
