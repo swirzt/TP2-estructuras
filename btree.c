@@ -46,7 +46,7 @@ BTree btree_insertar(BTree arbol, void* string, size_t strlen) {
   if (arbol == NULL) {
     BTree nuevoNodo = malloc(sizeof(BTNodo));
     nuevoNodo->dato = malloc(sizeof(wchar_t) * strlen);
-    nuevoNodo->dato = wcscpy(nuevoNodo->dato, palabra);
+    nuevoNodo->dato = wcsncpy(nuevoNodo->dato, palabra, strlen);
     nuevoNodo->right = NULL;
     nuevoNodo->left = NULL;
     return nuevoNodo;
@@ -62,7 +62,7 @@ BTree btree_insertar(BTree arbol, void* string, size_t strlen) {
   }
   BTree nuevoNodo = malloc(sizeof(BTNodo));
   nuevoNodo->dato = malloc(sizeof(wchar_t) * strlen);
-  nuevoNodo->dato = wcscpy(nuevoNodo->dato, palabra);
+  nuevoNodo->dato = wcsncpy(nuevoNodo->dato, palabra, strlen);
   nuevoNodo->right = NULL;
   nuevoNodo->left = NULL;
   if (wcscmp(padre->dato, palabra) < 0)

@@ -9,5 +9,8 @@ btree.o: btree.h btree.c
 tablahash.o: tablahash.c tablahash.h
 	$(CC) -c tablahash.c $(FLAGS)
 
-main: tablahash.o main.c btree.o
-	$(CC) -o main main.c tablahash.o btree.o $(FLAGS)
+colasenlazadas.o: colasenlazadas.c colasenlazadas.h
+	$(CC) -c colasenlazadas.c $(FLAGS)
+
+main: tablahash.o main.c btree.o colasenlazadas.o
+	$(CC) -o main main.c tablahash.o btree.o colasenlazadas.o $(FLAGS)

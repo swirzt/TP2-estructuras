@@ -15,7 +15,7 @@ TablaHash* tablahash_crear(unsigned capacidad, FuncionHash hash) {
   tabla->capacidad = capacidad;
   tabla->tabla = malloc(sizeof(CasillaHash) * capacidad);
 
-  // Inicializamos las casillas con datos nulos.
+  // Inicializamos las casillas con datos nulos.**
   for (unsigned idx = 0; idx < capacidad; ++idx) {
     tabla->tabla[idx].nodo = btree_crear();
   }
@@ -55,10 +55,10 @@ int tablahash_buscar(TablaHash* tabla, void* string, size_t strlen) {
 /**
  * Destruye la tabla.
  */
-void tablahash_destruir(TablaHash* tabla) {
-  for (unsigned int i = 0; i < tabla->capacidad; i++)
-    btree_destruir(tabla->tabla->nodo + i);
-  free(tabla);
+void tablahash_destruir(TablaHash* hash) {
+  for (unsigned int i = 0; i < hash->capacidad; i++)
+    btree_destruir(hash->tabla[i].nodo);
+  free(hash);
 }
 
 /**
