@@ -38,7 +38,7 @@ void cola_encolar(Cola cola, void* dato);
 /**
  * Elimina el primer elemento de la Cola.
  */
-void cola_desencolar(Cola cola);
+void cola_desencolar(Cola cola, FuncionDestruir d);
 
 /**
  * Destruye la Cola.

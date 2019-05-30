@@ -34,11 +34,12 @@ void cola_encolar(Cola cola, void* dato) {
   cola->ultimo = nuevoNodo;
 }
 
-void cola_desencolar(Cola cola) {
+void cola_desencolar(Cola cola, FuncionDestruir d) {
   assert(cola != NULL);
   if (!cola_es_vacia(cola)) {
     SList buffer = cola->primero->sig;
     if (buffer == NULL) cola->ultimo = NULL;
+    d(cola->primero->dato);
     free(cola->primero);
     cola->primero = buffer;
   }
