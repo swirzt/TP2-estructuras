@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 Cola cola_crear() {
-  Cola nuevaCola = malloc(sizeof(Cola));
+  Cola nuevaCola = malloc(sizeof(struct _Cola));
   nuevaCola->primero = NULL;
   nuevaCola->ultimo = NULL;
   return nuevaCola;

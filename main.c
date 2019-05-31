@@ -27,6 +27,7 @@ typedef struct {
  * Devuelve una espacio de memoria alocado para una palabra.
  */
 void* malloc_wpalabra(size_t size) {
+  size++;
   wchar_t* alocado = malloc(sizeof(wchar_t) * size);
   return alocado;
 }
@@ -73,15 +74,23 @@ wchar_t disminuye_wchar(wchar_t caracter) {
  */
 void leer_diccionario(TablaHash* tabla) {
   FILE* archivo = fopen(NOMBREDICCIONARIO, "r");
-  wchar_t* palabra = malloc_wpalabra(SIZEBUFFER);
-  while (fgetws(palabra, SIZEBUFFER, archivo) != NULL) {
-    size_t largo = wcslen(palabra);
-    while (SALTO_N(palabra[largo - 1]) || SALTO_R(palabra[largo - 1])) {
-      palabra[largo - 1] = L'\0';  // Quito el caracter '\n' o '\r'
-      largo--;
+  wchar_t *palabra = malloc_wpalabra(SIZEBUFFER), bufferc = fgetwc(archivo);
+  while (!ES_WEOF(bufferc)) {
+    int i = 0;
+    while (!SALTO_N(bufferc) && !ES_WEOF(bufferc)) {
+      bufferc = disminuye_wchar(bufferc);
+      if (iswalpha(bufferc)) {
+        palabra[i] = bufferc;
+        i++;
+      }
+      bufferc = fgetwc(archivo);
     }
-    for (int i = 0; i < largo; i++) palabra[i] = disminuye_wchar(palabra[i]);
-    tablahash_insertar(tabla, palabra, largo);
+    palabra[i] = L'\0';
+
+    tablahash_insertar(tabla, palabra, i);
+
+    while ((SALTO_N(bufferc) || ESPACIO(bufferc)) && !ES_WEOF(bufferc))
+      bufferc = fgetwc(archivo);
   }
   free(palabra);
   fclose(archivo);
@@ -91,7 +100,7 @@ PalabraMal* palabramal_crear(wchar_t* palabra, int size, int linea) {
   PalabraMal* generado = malloc(sizeof(PalabraMal));
   generado->linea = linea;
   generado->palabra = malloc_wpalabra(size);
-  wcsncpy(generado->palabra, palabra, size);
+  wcsncpy(generado->palabra, palabra, size + 1);
   generado->sizesugerencias = 0;
   generado->sugerencias = NULL;
   return generado;
@@ -103,12 +112,11 @@ Cola palabras_incorrectas(char* archivoEntrada, TablaHash* universo) {
   wchar_t *palabra = malloc_wpalabra(SIZEBUFFER), bufferc = fgetwc(archivo);
   int linea = 1;
   while (!ES_WEOF(bufferc)) {
-    wcsncpy(palabra, L"", 1);
     int i = 0;
     while (!ESPACIO(bufferc) && !SALTO_N(bufferc) && !ES_WEOF(bufferc)) {
       bufferc = disminuye_wchar(bufferc);
       if (iswalpha(bufferc)) {
-        palabra = wcsncat(palabra, &bufferc, 1);
+        palabra[i] = bufferc;
         i++;
       }
       bufferc = fgetwc(archivo);
@@ -147,10 +155,13 @@ void imprime_correciones(char* archivoSalida, Cola palabras) {
     // printf("holi\n");
     PalabraMal* dato = cola_primero(palabras);
     fwprintf(archivo, L"Línea %d,", dato->linea);
-    fwprintf(archivo, L"\"%ls\" no está en el diccionario.\n", dato->palabra);
+    wchar_t* palabra = dato->palabra;
+    fwprintf(archivo, L"\"%ls\" no está en el diccionario.\n", palabra);
     fwprintf(archivo, L"Quizá quiso decir:");
-    for (int i = 0; i < dato->sizesugerencias; i++)
-      fwprintf(archivo, L" %ls", dato->sugerencias[i]);
+    for (int i = 0; i < dato->sizesugerencias; i++) {
+      wchar_t* palabraSugerida = dato->sugerencias[i];
+      fwprintf(archivo, L" %ls", palabraSugerida);
+    }
     fwprintf(archivo, L"\n");
     cola_desencolar(palabras, palabramal_destruir);
   }
@@ -161,7 +172,7 @@ int main(int argc, char* argv[]) {
   TablaHash* diccionario = tablahash_crear(SIZEHASH, funcion_hasheo);
   leer_diccionario(diccionario);
   Cola incorrectas = palabras_incorrectas(argv[1], diccionario);
-  // wprintf(L"%d\n", cola_es_vacia(incorrectas));
+  wprintf(L"%d\n", cola_es_vacia(incorrectas));
   imprime_correciones(argv[2], incorrectas);
   return 0;
 }
