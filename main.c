@@ -67,43 +67,65 @@ wchar_t disminuye_wchar(wchar_t caracter) {
   return towlower(caracter);
 }
 
-void swap_char(wchar_t* palabra){
+void swap_char(wchar_t* palabra, Cola cola){
   int largo = wcslen(palabra);
   wchar_t temp;
   for (int i = 0; i<largo-1; i++){
-    palabra[i] = temp;
+    temp = palabra[i];
     palabra[i] = palabra[i+1];
     palabra[i+1] = temp;
-    funcionGrande(palabra);
+    cola_encolar(cola, palabra);
     //revierto la operacion
-    palabra[i] = temp;
+    temp = palabra[i];
     palabra[i] = palabra[i+1];
     palabra[i+1] = temp;
   }
 }
 
-void replace_char(wchar_t* palabra){
+void replace_char(wchar_t* palabra, Cola cola){
   int largo = wcslen(palabra);
   for (int j = 0; j < largo; j++){
-    for (int i = 'a'; i < 'z'; i++) {
-      wchar_t viejochar;
-      viejochar = palabra[j];
+    wchar_t viejochar = palabra[j];
+    for (int i = 'a'; i <= 'z'; i++) {
       palabra[j] = i;
-      funcionGrande(palabra);
-      palabra[j] = viejochar;
-
+      cola_encolar(cola, palabra);
       }
+      palabra[j] = viejochar;
   }
 }
 
-void remove_char(wchar_t* palabra){
+void remove_char(wchar_t* palabra, Cola cola){
   int largo = wcslen(palabra);
   for (int j = 0; j < largo; j++){
-    for(int i = j; i <= largo; i++){
+    wchar_t viejochar = palabra[j];
+    for(int i = j; i < largo; i++){
       palabra[i] = palabra [i+1];
     }
+    cola_encolar(cola, palabra);
+    for (int i = largo; i >= j; i--){
+      palabra[i+1] = palabra[i];
+    }
+    palabra[j] = viejochar;
   }
 }
+
+void insert_char(wchar_t* palabra, Cola cola){
+    int largo = wcslen(palabra);
+    wchar_t* buffer = malloc(sizeof(wchar_t)*(largo+2));
+    for (int j = 0; j <= largo; j++){
+      wcscpy(buffer, palabra);
+      for (int i = largo; i >= j; i--){
+        buffer[i] = buffer[i-1];
+        }
+      for(int k='a'; k<='z';k++){
+        buffer[j] = k;
+        cola_encolar(cola, palabra);
+      }
+      if(j>0 || j < largo) buffer[j] = ' ';
+      cola_encolar(cola, palabra);
+    }
+}
+
 /*
  *Recibe una tabla hash.
  *Almacena todas las palabras del universo en el Hash.
@@ -167,7 +189,10 @@ Cola palabras_incorrectas(char* archivoEntrada, TablaHash* universo) {
   return palabras;
 }
 
-void crea_correciones(Cola palabras, TablaHash* dicc) {}  // hacer
+void crea_correciones(Cola palabras, TablaHash* dicc) {
+  PalabraMal* palabraActual = palabras->primero;
+  wchar_t* palabra =
+}  // hacer
 
 void palabramal_destruir(void* dato) {
   PalabraMal* destruido = dato;
