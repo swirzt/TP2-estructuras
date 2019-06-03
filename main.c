@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <wchar.h>
 #include <wctype.h>
+#include "colasenlazadas.h"
 #include "slist.h"
 #include "tablahash.h"
 
@@ -14,6 +15,8 @@ typedef struct {
   void** sugerencias;
 } PalabraMal;
 
+typedef enum { NO, SI } limite;
+
 #define NOMBREDICCIONARIO "universo.txt"
 
 #define SIZEHASH 1689
@@ -23,6 +26,8 @@ typedef struct {
 #define R(c) (c == L'\r')
 #define ESPACIO(c) (c == L' ')
 #define ES_WEOF(c) (c == WEOF)
+
+#define abecedario L"abcdefghijklmnñopqrstuvwxyzáéíóúöü"
 
 /*
  * Devuelve una espacio de memoria alocado para una palabra.
@@ -107,7 +112,7 @@ PalabraMal* palabramal_crear(wchar_t* palabra, int size, int linea) {
   generado->palabra = malloc_wpalabra(size);
   wcsncpy(generado->palabra, palabra, size + 1);
   generado->sizesugerencias = 0;
-  generado->sugerencias = NULL;
+  generado->sugerencias = malloc(sizeof(wchar_t*) * 50);
   return generado;
 }
 
@@ -148,12 +153,162 @@ SHead palabras_incorrectas(char* archivoEntrada, TablaHash* universo) {
   return palabras;
 }
 
-void crea_correciones(SHead palabras, TablaHash* dicc) {
-  if (!slist_vacia(palabras)) {
-    for (SList i = palabras->inicio; i != NULL; i = i->sig) {
-      PalabraMal* dato = i->dato;
-      // HACERKSJDSLAKJDLAKJDLAS
+wchar_t* copiapalabra(wchar_t* palabra, int largo) {
+  wchar_t* devolver = malloc_wpalabra(largo + 1);
+  wcscpy(devolver, palabra);
+  return devolver;
+}
+
+void swap_char(void* origen, Cola cola, PalabraMal* palabraActual,
+               TablaHash* tabla, limite l) {
+  wchar_t* palabra = origen;
+  int largo = wcslen(palabra);
+  wchar_t temp;
+  int limitar = (l == 0 ? 1 : (palabraActual->sizesugerencias < 5));
+  for (int i = 0; i < largo - 1 && limitar; i++) {
+    if (palabra[i] != palabra[i + 1]) {
+      temp = palabra[i];
+      palabra[i] = palabra[i + 1];
+      palabra[i + 1] = temp;
+      if (tablahash_buscar(tabla, palabra, largo) &&
+          wcscmp(palabra, palabraActual->palabra)) {
+        palabraActual->sugerencias[palabraActual->sizesugerencias] =
+            malloc_wpalabra(largo + 1);
+        wcscpy(palabraActual->sugerencias[palabraActual->sizesugerencias],
+               palabra);
+        palabraActual->sizesugerencias++;
+        limitar = (l == 0 ? 1 : (palabraActual->sizesugerencias < 5));
+      }
+      cola_encolar(cola, copiapalabra(palabra, largo));
+      // revierto la operacion
+      temp = palabra[i];
+      palabra[i] = palabra[i + 1];
+      palabra[i + 1] = temp;
     }
+  }
+}
+
+void replace_char(void* origen, Cola cola, PalabraMal* palabraActual,
+                  TablaHash* tabla, limite l) {
+  wchar_t* palabra = origen;
+  int largo = wcslen(palabra);
+  wchar_t abc[] = abecedario;
+  int limitar = (l == 0 ? 1 : (palabraActual->sizesugerencias < 5));
+  for (int j = 0; j < largo && limitar; j++) {
+    wchar_t viejochar = palabra[j];
+    for (int i = 0; i < 34 && limitar; i++) {
+      if (palabra[j] != abc[i]) {
+        palabra[j] = abc[i];
+        if (tablahash_buscar(tabla, palabra, largo) &&
+            wcscmp(palabra, palabraActual->palabra)) {
+          palabraActual->sugerencias[palabraActual->sizesugerencias] =
+              malloc_wpalabra(largo + 1);
+          wcscpy(palabraActual->sugerencias[palabraActual->sizesugerencias],
+                 palabra);
+          palabraActual->sizesugerencias++;
+          limitar = (l == 0 ? 1 : (palabraActual->sizesugerencias < 5));
+        }
+
+        cola_encolar(cola, copiapalabra(palabra, largo));
+        palabra[j] = viejochar;
+      }
+    }
+  }
+}
+
+void remove_char(void* origen, Cola cola, PalabraMal* palabraActual,
+                 TablaHash* tabla, limite l) {
+  wchar_t* palabra = origen;
+  int largo = wcslen(palabra);
+  int limitar = (l == 0 ? 1 : (palabraActual->sizesugerencias < 5));
+  for (int j = 0; j < largo && limitar; j++) {
+    wchar_t viejochar = palabra[j];
+    for (int i = j; i < largo && limitar; i++) {
+      palabra[i] = palabra[i + 1];
+    }
+    if (tablahash_buscar(tabla, palabra, largo) &&
+        wcscmp(palabra, palabraActual->palabra)) {
+      palabraActual->sugerencias[palabraActual->sizesugerencias] =
+          malloc_wpalabra(largo + 1);
+      wcscpy(palabraActual->sugerencias[palabraActual->sizesugerencias],
+             palabra);
+      palabraActual->sizesugerencias++;
+      limitar = (l == 0 ? 1 : (palabraActual->sizesugerencias < 5));
+    }
+    cola_encolar(cola, copiapalabra(palabra, largo));
+    for (int i = largo; i >= j && palabraActual->sizesugerencias < 5; i--) {
+      palabra[i + 1] = palabra[i];
+    }
+    palabra[j] = viejochar;
+  }
+}
+
+void insert_char(void* origen, Cola cola, PalabraMal* palabraActual,
+                 TablaHash* tabla, limite l) {
+  wchar_t* palabra = origen;
+  int largo = wcslen(palabra);
+  wchar_t* buffer = malloc(sizeof(wchar_t) * (largo + 2));
+  wchar_t abc[] = abecedario;
+  int limitar = (l == 0 ? 1 : (palabraActual->sizesugerencias < 5));
+  for (int j = 0; j <= largo && limitar; j++) {
+    wcscpy(buffer, palabra);
+    for (int i = largo; i >= j && limitar; i--) {
+      buffer[i] = buffer[i - 1];
+    }
+    for (int k = 0; k < 34 && limitar; k++) {
+      buffer[j] = abc[k];
+      if (tablahash_buscar(tabla, buffer, largo) &&
+          wcscmp(palabra, palabraActual->palabra)) {
+        palabraActual->sugerencias[palabraActual->sizesugerencias] =
+            malloc_wpalabra(largo + 1);
+        wcscpy(palabraActual->sugerencias[palabraActual->sizesugerencias],
+               palabra);
+        palabraActual->sizesugerencias++;
+        limitar = (l == 0 ? 1 : (palabraActual->sizesugerencias < 5));
+      }
+      cola_encolar(cola, copiapalabra(palabra, largo));
+    }
+    // if (j > 0 && j < largo && limitar) buffer[j] = ' ';
+    // cola_encolar(cola, palabra);
+  }
+}
+
+void crea_correciones(SHead palabras, TablaHash* dicc) {
+  SList i = palabras->inicio;
+  while (i != NULL) {
+    Cola colaPalabras = cola_crear();
+    PalabraMal* palabraActual = i->dato;
+    wprintf(L"%ls\n", palabraActual->palabra);
+    int largo = wcslen(palabraActual->palabra);
+    wchar_t* copia = malloc_wpalabra(largo + 1);
+    wcscpy(copia, palabraActual->palabra);
+    cola_encolar(colaPalabras, copia);
+    replace_char(cola_primero(colaPalabras), colaPalabras, palabraActual, dicc,
+                 NO);
+    remove_char(cola_primero(colaPalabras), colaPalabras, palabraActual, dicc,
+                NO);
+    swap_char(cola_primero(colaPalabras), colaPalabras, palabraActual, dicc,
+              NO);
+    // insert_char(cola_primero(colaPalabras), colaPalabras, palabraActual,
+    // dicc,
+    //             NO);
+    cola_desencolar(colaPalabras);
+    // int n = 0;
+    while (palabraActual->sizesugerencias < 5) {
+      // wprintf(L"%d %ls\n", n++, (wchar_t*)cola_primero(colaPalabras));
+      replace_char(cola_primero(colaPalabras), colaPalabras, palabraActual,
+                   dicc, SI);
+      remove_char(cola_primero(colaPalabras), colaPalabras, palabraActual, dicc,
+                  SI);
+      swap_char(cola_primero(colaPalabras), colaPalabras, palabraActual, dicc,
+                SI);
+      // insert_char(cola_primero(colaPalabras), colaPalabras, palabraActual,
+      // dicc,
+      //             SI);
+      cola_desencolar(colaPalabras);
+    }
+    cola_destruir(colaPalabras);
+    i = i->sig;
   }
 }
 
@@ -194,6 +349,7 @@ int main(int argc, char* argv[]) {
   leer_diccionario(diccionario);
   SHead incorrectas = palabras_incorrectas(argv[1], diccionario);
   wprintf(L"%d\n", slist_vacia(incorrectas));
+  crea_correciones(incorrectas, diccionario);
   imprime_correciones(argv[2], incorrectas);
   slist_destruir(incorrectas, palabramal_destruir);
   return 0;
