@@ -243,33 +243,63 @@ void remove_char(void* origen, Cola cola, PalabraMal* palabraActual,
   }
 }
 
+int busca_separadas(wchar_t* palabras, TablaHash* dicc, int largo) {
+  int i = 0;
+  // wprintf(L"entró %ls\n", palabras);
+  int contadorBien = 0, contadorPalabras = 0;
+  wchar_t* buffer = malloc_wpalabra(largo - 1);
+  while (i < largo) {
+    int j = 0;
+    while (palabras[i] != L' ' && i < largo) {
+      buffer[j] = palabras[i];
+      j++;
+      i++;
+    }
+    i++;
+    buffer[j] = L'\0';
+    // wprintf(L"%ls %d ", buffer, wcslen(buffer));
+    contadorPalabras++;
+    contadorBien = contadorBien + tablahash_buscar(dicc, buffer, j);
+  }
+  // wprintf(L"\n");
+  return contadorBien == contadorPalabras;
+}
+
 void insert_char(void* origen, Cola cola, PalabraMal* palabraActual,
                  TablaHash* tabla, limite l) {
   wchar_t* palabra = origen;
-  int largo = wcslen(palabra);
-  wchar_t* buffer = malloc(sizeof(wchar_t) * (largo + 2));
-  wchar_t abc[] = abecedario;
+  int largo = wcslen(palabra), nuevoLargo = largo + 1;
+  wchar_t *buffer = malloc_wpalabra(nuevoLargo + 1), abc[] = abecedario;
   int limitar = (l == 0 ? 1 : (palabraActual->sizesugerencias < 5));
-  for (int j = 0; j <= largo && limitar; j++) {
+  for (int j = 0; j < nuevoLargo && limitar; j++) {
     wcscpy(buffer, palabra);
-    for (int i = largo; i >= j && limitar; i--) {
-      buffer[i] = buffer[i - 1];
+    for (int i = nuevoLargo; i > j; i--) {
+      buffer[i] = palabra[i - 1];
     }
     for (int k = 0; k < 34 && limitar; k++) {
       buffer[j] = abc[k];
-      if (tablahash_buscar(tabla, buffer, largo) &&
-          wcscmp(palabra, palabraActual->palabra)) {
+      if (wcscmp(buffer, palabraActual->palabra) &&
+          tablahash_buscar(tabla, buffer, nuevoLargo)) {
         palabraActual->sugerencias[palabraActual->sizesugerencias] =
-            malloc_wpalabra(largo + 1);
+            malloc_wpalabra(nuevoLargo + 1);
         wcscpy(palabraActual->sugerencias[palabraActual->sizesugerencias],
-               palabra);
+               buffer);
         palabraActual->sizesugerencias++;
         limitar = (l == 0 ? 1 : (palabraActual->sizesugerencias < 5));
       }
-      cola_encolar(cola, copiapalabra(palabra, largo));
+      cola_encolar(cola, copiapalabra(buffer, nuevoLargo));
     }
-    // if (j > 0 && j < largo && limitar) buffer[j] = ' ';
-    // cola_encolar(cola, palabra);
+    if (j > 0 && j < largo && limitar) {
+      buffer[j] = ' ';
+      if (busca_separadas(buffer, tabla, nuevoLargo)) {
+        palabraActual->sugerencias[palabraActual->sizesugerencias] =
+            malloc_wpalabra(nuevoLargo);
+        wcscpy(palabraActual->sugerencias[palabraActual->sizesugerencias],
+               buffer);
+        palabraActual->sizesugerencias++;
+        limitar = (l == 0 ? 1 : (palabraActual->sizesugerencias < 5));
+      }
+    }
   }
 }
 
@@ -278,7 +308,7 @@ void crea_correciones(SHead palabras, TablaHash* dicc) {
   while (i != NULL) {
     Cola colaPalabras = cola_crear();
     PalabraMal* palabraActual = i->dato;
-    wprintf(L"%ls\n", palabraActual->palabra);
+    // wprintf(L"%ls\n", palabraActual->palabra);
     int largo = wcslen(palabraActual->palabra);
     wchar_t* copia = malloc_wpalabra(largo + 1);
     wcscpy(copia, palabraActual->palabra);
@@ -289,22 +319,19 @@ void crea_correciones(SHead palabras, TablaHash* dicc) {
                 NO);
     swap_char(cola_primero(colaPalabras), colaPalabras, palabraActual, dicc,
               NO);
-    // insert_char(cola_primero(colaPalabras), colaPalabras, palabraActual,
-    // dicc,
-    //             NO);
+    // wprintf(L"sali papi\n");
+    insert_char(cola_primero(colaPalabras), colaPalabras, palabraActual, dicc,
+                NO);
     cola_desencolar(colaPalabras);
-    // int n = 0;
     while (palabraActual->sizesugerencias < 5) {
-      // wprintf(L"%d %ls\n", n++, (wchar_t*)cola_primero(colaPalabras));
       replace_char(cola_primero(colaPalabras), colaPalabras, palabraActual,
                    dicc, SI);
       remove_char(cola_primero(colaPalabras), colaPalabras, palabraActual, dicc,
                   SI);
       swap_char(cola_primero(colaPalabras), colaPalabras, palabraActual, dicc,
                 SI);
-      // insert_char(cola_primero(colaPalabras), colaPalabras, palabraActual,
-      // dicc,
-      //             SI);
+      insert_char(cola_primero(colaPalabras), colaPalabras, palabraActual, dicc,
+                  SI);
       cola_desencolar(colaPalabras);
     }
     cola_destruir(colaPalabras);
@@ -337,6 +364,7 @@ void imprime_correciones(char* archivoSalida, SHead palabras) {
     for (int i = 0; i < dato->sizesugerencias; i++) {
       wchar_t* palabraSugerida = dato->sugerencias[i];
       fwprintf(archivo, L" %ls", palabraSugerida);
+      if (i != dato->sizesugerencias - 1) fwprintf(archivo, L",");
     }
     fwprintf(archivo, L"\n");
   }
@@ -348,7 +376,7 @@ int main(int argc, char* argv[]) {
   TablaHash* diccionario = tablahash_crear(SIZEHASH, funcion_hasheo);
   leer_diccionario(diccionario);
   SHead incorrectas = palabras_incorrectas(argv[1], diccionario);
-  wprintf(L"%d\n", slist_vacia(incorrectas));
+  // wprintf(L"%d\n", slist_vacia(incorrectas));
   crea_correciones(incorrectas, diccionario);
   imprime_correciones(argv[2], incorrectas);
   slist_destruir(incorrectas, palabramal_destruir);
