@@ -1,20 +1,14 @@
-Línea 1,"klho" no está en el diccionario.
-Quizá quiso decir: albo, algo, almo, alno, alto
-Línea 2,"jop" no está en el diccionario.
-Quizá quiso decir: pop, top, job, jo, jo p, jopo, jopé
-Línea 3,"holis" no está en el diccionario.
-Quizá quiso decir: bilis, boli, boli s, bolisa, comis
-Línea 4,"buenas" no está en el diccionario.
-Quizá quiso decir: buena, buen as, buena s, apenas, fueras
-Línea 4,"tardes" no está en el diccionario.
-Quizá quiso decir: tarde, tarde s, bar des, caries, carmes
-Línea 5,"comunico" no está en el diccionario.
-Quizá quiso decir: dominico, domínico, nomónico, románico, cumínico
-Línea 5,"comentarle" no está en el diccionario.
-Quizá quiso decir: comentar le, fomentar le, cementar le, cimentar le, comenzar le
-Línea 5,"poseo" no está en el diccionario.
-Quizá quiso decir: voseo, paseo, poleo, poso, pose, proseo, poseso, pose o
-Línea 6,"indiqueme" no está en el diccionario.
-Quizá quiso decir: enrique me, ónique me, in piquete, enrique me, inri quema
-Línea 6,"facil" no está en el diccionario.
-Quizá quiso decir: fácil, facial, badil, bañil, baril
+Línea 1,"mamita" no está en el diccionario.
+Quizá quiso decir: camita, manita, masita, mamila, marmita.
+Línea 1,"mima" no está en el diccionario.
+Quizá quiso decir: cima, lima, rima, sima, mama, mema, mica, mida, miga, mina, mira, misa, mita, miza, mime, mimo, m m.
+Línea 2,"papito" no está en el diccionario.
+Quizá quiso decir: zapito, pepito, pañito, pasito, patito, papiro, pito.
+Línea 3,"hermanita" no está en el diccionario.
+Quizá quiso decir: her manita, fer manita, germanista, lemanita, per manita.
+Línea 3,"acosa" no está en el diccionario.
+Quizá quiso decir: alosa, acose, acoso, cosa, arcosa, a cosa, acosar.
+Línea 4,"primita" no está en el diccionario.
+Quizá quiso decir: eremita, ermita, ori mita, trilita, palmita.
+Línea 5,"quiere" no está en el diccionario.
+Quizá quiso decir: quiete, quier, qui ere, quier e, buitre.

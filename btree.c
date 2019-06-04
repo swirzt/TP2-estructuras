@@ -42,7 +42,6 @@ int btree_obtener_dato(BTree arbol, void* string) {
  */
 BTree btree_insertar(BTree arbol, void* string, size_t strlen) {
   wchar_t* palabra = string;
-  // size_t strlen = wcslen(palabra) + 1;
   strlen++;
   if (arbol == NULL) {
     BTree nuevoNodo = malloc(sizeof(BTNodo));

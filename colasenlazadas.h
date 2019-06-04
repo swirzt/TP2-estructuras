@@ -3,19 +3,10 @@
 
 #include "slist.h"
 
-// typedef struct _SNodo {
-//   void* dato;
-//   struct _SNodo* sig;
-// } SNodo;
-
-// typedef SNodo* SList;
-
 typedef struct _Cola {
   SList primero;
   SList ultimo;
 } * Cola;
-
-// typedef void (*FuncionDestruir)(void* clave);
 
 /**
  * Crea una nueva Cola.

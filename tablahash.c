@@ -58,6 +58,7 @@ int tablahash_buscar(TablaHash* tabla, void* string, size_t strlen) {
 void tablahash_destruir(TablaHash* hash) {
   for (unsigned int i = 0; i < hash->capacidad; i++)
     btree_destruir(hash->tabla[i].nodo);
+  free(hash->tabla);
   free(hash);
 }
 
