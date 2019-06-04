@@ -8,6 +8,12 @@
 #include "slist.h"
 #include "tablahash.h"
 
+/*
+ * Para compilar utilizar el comando "make" dentro de la carpeta del TP
+ * El programa se ejecuta de la forma:
+ * ./main archivoEntrada.txt archivoSalida.txt
+ */
+
 typedef struct {
   int linea;
   void* palabra;
@@ -406,6 +412,10 @@ void imprime_correciones(char* archivoSalida, SHead palabras) {
 }
 
 int main(int argc, char* argv[]) {
+  if (argc != 3) {
+    wprintf(L"La cantidad de argumentos es incorrecta.\n");
+    return 1;
+  }
   setlocale(LC_ALL, "");
   TablaHash* diccionario = tablahash_crear(SIZEHASH, funcion_hasheo);
   leer_diccionario(diccionario);
