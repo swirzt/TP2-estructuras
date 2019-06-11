@@ -44,9 +44,5 @@ int tablahash_buscar(TablaHash* tabla, void* clave, size_t strlen);
  * Destruye la tabla.
  */
 void tablahash_destruir(TablaHash* tabla);
-/**
- * Comparar datos
- */
-int comparar_clave(void* clave1, void* clave2);
 
 #endif /* __TABLAHASH_H__ */

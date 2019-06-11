@@ -61,12 +61,3 @@ void tablahash_destruir(TablaHash* hash) {
   free(hash->tabla);
   free(hash);
 }
-
-/**
- * Comparar datos
- */
-int comparar_clave(void* clave1, void* clave2) {
-  int* claveoriginal = clave1;
-  int* claveocomparar = clave2;
-  return *claveocomparar == *claveoriginal;
-}
