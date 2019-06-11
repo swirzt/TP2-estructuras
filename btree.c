@@ -27,9 +27,10 @@ int btree_obtener_dato(BTree arbol, void* string) {
   wchar_t* palabra = string;
   int encontre = 0;
   while (!encontre && arbol != NULL) {
-    if (!wcscmp(arbol->dato, palabra))
+    int comparacion = wcscmp(arbol->dato, palabra);
+    if (!comparacion)
       encontre = 1;
-    else if (wcscmp(arbol->dato, palabra) < 0)
+    else if (comparacion < 0)
       arbol = arbol->right;
     else
       arbol = arbol->left;

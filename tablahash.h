@@ -35,8 +35,8 @@ TablaHash* tablahash_crear(unsigned capacidad, FuncionHash fun);
 void tablahash_insertar(TablaHash* tabla, void* string, size_t strlen);
 
 /**
- * Busca un elemento dado en la tabla, y retorna un puntero al mismo.
- * En caso de no existir, se retorna un puntero nulo.
+ * Busca un elemento dado en la tabla, retorna 1 si lo encuentra.
+ * De lo contrario devuelve 0.
  */
 int tablahash_buscar(TablaHash* tabla, void* clave, size_t strlen);
 

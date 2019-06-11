@@ -26,7 +26,7 @@ typedef enum { NO, SI } limite;  // Las funciones que reciben límite
 #define NOMBREDICCIONARIO "universo.txt"  // Nombre del diccionario
 
 #define SIZEHASH 1689   // Tamaño máximo del Hash
-#define SIZEBUFFER 30   // Tamaño default de buffer
+#define SIZEBUFFER 256  // Tamaño default de buffer
 #define MAXGENERADAS 5  // Máximo de palabras a generar con distancia mayor a 1
 
 // MACROS
@@ -160,10 +160,12 @@ SHead palabras_incorrectas(char* archivoEntrada, TablaHash* universo) {
       slist_insertar_final(palabras, dato);
     }
 
-    if (N(bufferc)) linea++;
-
-    while ((N(bufferc) || ESPACIO(bufferc)) && !ES_WEOF(bufferc))
+    // if (N(bufferc)) linea++;
+    // int cuentalineas = 0;
+    while ((N(bufferc) || ESPACIO(bufferc)) && !ES_WEOF(bufferc)) {
+      if (N(bufferc)) linea++;
       bufferc = fgetwc(archivo);
+    }
   }
   free(palabra);
   fclose(archivo);
